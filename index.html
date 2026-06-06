@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>沃顿伯格意见箱 | 长期反馈通道</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(145deg, #d4e9ff 0%, #f0f8ff 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            color: #023b66;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 2.5rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 60, 100, 0.25);
+            overflow: hidden;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        .hero {
+            background: linear-gradient(135deg, #0a4c7a 0%, #1e6fa8 100%);
+            padding: 2.5rem 2rem 2rem 2rem;
+            color: white;
+            text-align: center;
+            border-bottom-left-radius: 2rem;
+            border-bottom-right-radius: 2rem;
+        }
+        .hero h1 {
+            font-size: 2.6rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .hero h1 span {
+            background: rgba(255,255,255,0.2);
+            padding: 0 0.8rem;
+            border-radius: 60px;
+            font-size: 1.8rem;
+        }
+        .hero p { font-size: 1.1rem; opacity: 0.9; max-width: 550px; margin: 1rem auto 0; font-weight: 400; }
+        .icon-badge {
+            background: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 8px 14px rgba(0,0,0,0.1);
+        }
+        .icon-badge svg { width: 34px; height: 34px; stroke: #1e6fa8; stroke-width: 1.7; fill: none; }
+        .tab-bar {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem 0;
+            background: #fafeff;
+            border-bottom: 1px solid #d9ebff;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #5c8eb0;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            font-family: inherit;
+            border-radius: 12px 12px 0 0;
+        }
+        .tab-btn:hover { color: #0f5880; background: #eef4fc; }
+        .tab-btn.active { color: #0f5880; border-bottom-color: #1e6fa8; background: #eef4fc; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .main-grid { display: flex; flex-wrap: wrap; gap: 2rem; padding: 2.2rem 2rem; }
+        .form-section {
+            flex: 1.2;
+            min-width: 260px;
+            background: white;
+            border-radius: 1.8rem;
+            padding: 1.6rem 1.8rem;
+            box-shadow: 0 8px 18px rgba(0,40,70,0.08);
+            border: 1px solid #e2f0ff;
+        }
+        .form-section h2 {
+            font-size: 1.7rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #0a4c7a;
+            border-left: 5px solid #2c7cb6;
+            padding-left: 0.9rem;
+        }
+        .form-sub { color: #457b9d; margin-bottom: 1.5rem; font-size: 0.9rem; margin-top: 0.25rem; padding-left: 1.2rem; }
+        .input-group { margin-bottom: 1.4rem; }
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #175d8c;
+            font-size: 0.95rem;
+        }
+        label svg { width: 18px; height: 18px; fill: none; stroke: #2c7cb6; stroke-width: 2; }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border-radius: 1.2rem;
+            border: 1px solid #cae3f5;
+            background: #fefefe;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            color: #023b66;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2c7cb6;
+            box-shadow: 0 0 0 3px rgba(44,124,182,0.2);
+            background: white;
+        }
+        textarea { resize: vertical; min-height: 110px; }
+        .char-counter { text-align: right; font-size: 0.75rem; color: #6c8da3; margin-top: 5px; }
+        .btn-submit {
+            background: linear-gradient(100deg, #1a6692 0%, #0f4c70 100%);
+            color: white;
+            border: none;
+            padding: 0.9rem 1.5rem;
+            border-radius: 2.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.2s;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 5px 12px rgba(17,85,125,0.3);
+        }
+        .btn-submit:hover { background: linear-gradient(100deg, #0f5880 0%, #0a3e5c 100%); transform: translateY(-1px); box-shadow: 0 8px 18px rgba(17,85,125,0.4); }
+        .btn-submit:active { transform: translateY(1px); }
+        .list-section {
+            flex: 1.6;
+            min-width: 280px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 1.8rem;
+            padding: 1.6rem 1.5rem;
+            box-shadow: 0 8px 18px rgba(0,40,70,0.08);
+            border: 1px solid #e2f0ff;
+            display: flex;
+            flex-direction: column;
+        }
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 1.2rem;
+            border-bottom: 2px solid #d9ebff;
+            padding-bottom: 0.7rem;
+        }
+        .list-header h2 { font-size: 1.5rem; font-weight: 600; color: #0f5880; display: flex; align-items: center; gap: 8px; }
+        .clear-btn {
+            background: none;
+            border: 1px solid #bbd6ed;
+            color: #2c6e9e;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+        .clear-btn:hover { background: #eef4fc; color: #bc4742; border-color: #bc4742; }
+        .feedback-stats {
+            font-size: 0.8rem;
+            color: #2f7ca3;
+            margin-bottom: 1rem;
+            background: #eef4fc;
+            display: inline-block;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            width: fit-content;
+        }
+        .feedback-list { max-height: 480px; overflow-y: auto; padding-right: 5px; display: flex; flex-direction: column; gap: 14px; }
+        .feedback-list::-webkit-scrollbar { width: 5px; }
+        .feedback-list::-webkit-scrollbar-track { background: #e2edf7; border-radius: 10px; }
+        .feedback-list::-webkit-scrollbar-thumb { background: #8fb9da; border-radius: 10px; }
+        .feedback-card {
+            background: #ffffff;
+            border: 1px solid #cde5f8;
+            border-radius: 1.3rem;
+            padding: 1rem 1.2rem;
+            transition: all 0.1s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .feedback-card:hover { border-color: #95c0e2; background: #fefeff; box-shadow: 0 6px 12px rgba(26,85,125,0.08); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+        .feedback-name {
+            font-weight: 700;
+            color: #0f4c70;
+            background: #e9f2fa;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+        .feedback-category { border-radius: 30px; padding: 0.2rem 0.75rem; font-size: 0.7rem; font-weight: 600; color: #0f5880; }
+        .feedback-time { font-size: 0.7rem; color: #739cbb; letter-spacing: 0.3px; }
+        .feedback-message { margin: 0.6rem 0 0.4rem 0; color: #1b4d6e; line-height: 1.45; font-size: 0.9rem; word-break: break-word; white-space: pre-wrap; }
+        .delete-one { background: transparent; border: none; color: #a3c2db; cursor: pointer; font-size: 1rem; transition: 0.1s; padding: 4px 6px; border-radius: 30px; }
+        .delete-one:hover { color: #e65c4f; background: #ffeeed; }
+        .empty-state { text-align: center; padding: 2.8rem 1rem; color: #90b4d3; font-size: 0.9rem; }
+        .stats-panel { padding: 1.5rem 2rem; display: flex; flex-wrap: wrap; gap: 2rem; align-items: flex-start; }
+        .stats-cards { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .stat-card {
+            background: white;
+            border-radius: 1.2rem;
+            padding: 1.2rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,40,70,0.06);
+            border: 1px solid #e2f0ff;
+            text-align: center;
+            min-width: 100px;
+            flex: 1;
+        }
+        .stat-card .stat-number { font-size: 2rem; font-weight: 700; color: #0f5880; }
+        .stat-card .stat-label { font-size: 0.8rem; color: #6c8da3; margin-top: 0.2rem; }
+        .chart-container {
+            background: white;
+            border-radius: 1.2rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,40,70,0.06);
+            border: 1px solid #e2f0ff;
+            flex: 2;
+            min-width: 280px;
+        }
+        .chart-container h3 { color: #0f5880; margin-bottom: 1rem; font-size: 1.1rem; }
+        .chart-wrapper { max-width: 300px; margin: 0 auto; }
+        .toast-msg {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #023b66e6;
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 0.7rem 1.6rem;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 1000;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        footer { text-align: center; padding: 1rem 1rem 1.5rem; font-size: 0.8rem; color: #5c8eb0; border-top: 1px solid #cbe2f5; background: #fafeff; }
+        @media (max-width: 760px) {
+            body { padding: 1rem; }
+            .hero h1 { font-size: 1.9rem; }
+            .main-grid { padding: 1.5rem; gap: 1.5rem; }
+            .form-section, .list-section { padding: 1.2rem; }
+            .stats-panel { flex-direction: column; }
+            .tab-btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="hero">
+        <div class="icon-badge">
+            <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+            </svg>
+        </div>
+        <h1>沃顿伯格意见箱 <span>📬</span></h1>
+        <p>我们珍视每一份声音 · 长期倾听 持续改进</p>
+    </div>
+    <div class="tab-bar">
+        <button class="tab-btn active" data-tab="tab-feedback">📝 提交意见</button>
+        <button class="tab-btn" data-tab="tab-stats">📊 数据统计</button>
+    </div>
+    <div id="tab-feedback" class="tab-content active">
+        <div class="main-grid">
+            <div class="form-section">
+                <h2>写下您的想法</h2>
+                <div class="form-sub">匿名或署名皆可，真诚建议将让沃顿伯格变得更好</div>
+                <form id="feedbackForm">
+                    <div class="input-group">
+                        <label><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>称呼 / 昵称</label>
+                        <input type="text" id="nameInput" placeholder="例如：沃顿员工、热心市民 (可选)" maxlength="40">
+                    </div>
+                    <div class="input-group">
+                        <label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7l-8 5-8-5" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>意见分类</label>
+                        <select id="categorySelect">
+                            <option value="建议">💡 建议</option>
+                            <option value="表扬">🌟 表扬</option>
+                            <option value="投诉">⚠️ 投诉</option>
+                            <option value="其他">📌 其他</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10h18M6 6h12M6 18h12M3 14h18" /></svg>详细内容 *</label>
+                        <textarea id="messageInput" placeholder="请写下您的宝贵意见或建议，最多500字..." maxlength="500" required></textarea>
+                        <div class="char-counter"><span id="charCount">0</span> / 500</div>
+                    </div>
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        提交意见
+                    </button>
+                </form>
+            </div>
+            <div class="list-section">
+                <div class="list-header">
+                    <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f5880" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="8" y1="2" x2="8" y2="6"></line><line x1="16" y1="2" x2="16" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>近期心声</h2>
+                    <button id="clearAllBtn" class="clear-btn">清空所有意见</button>
+                </div>
+                <div class="feedback-stats" id="statsDisplay">加载中...</div>
+                <div id="feedbackListContainer" class="feedback-list"><div class="empty-state">✨ 加载中...</div></div>
+            </div>
+        </div>
+    </div>
+    <div id="tab-stats" class="tab-content">
+        <div class="stats-panel">
+            <div class="stats-cards">
+                <div class="stat-card"><div class="stat-number" id="statTotal">0</div><div class="stat-label">总意见数</div></div>
+                <div class="stat-card"><div class="stat-number" id="statToday">0</div><div class="stat-label">今日新增</div></div>
+                <div class="stat-card"><div class="stat-number" id="statWeek">0</div><div class="stat-label">本周新增</div></div>
+            </div>
+            <div class="chart-container"><h3>📈 意见分类分布</h3><div class="chart-wrapper"><canvas id="categoryChart"></canvas></div></div>
+        </div>
+    </div>
+    <footer>© 沃顿伯格意见箱 · 长期开放 | 每一份真诚反馈都将直达管理团队</footer>
+</div>
+<div id="toast" class="toast-msg" style="opacity:0; visibility: hidden;"></div>
+
+<script>
+    // ========== 改下面3行！==========
+    const GITHUB_USER = 'W5691';
+    const GITHUB_REPO = 'feedback-data';
+    const GITHUB_TOKEN = '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';
+    // ================================
+
+    const API_BASE = 'https://api.github.com/repos/' + GITHUB_USER + '/' + GITHUB_REPO + '/issues';
+    const DATA_LABEL = 'FEEDBACK_DATA';
+    let categoryChart = null;
+    let allFeedbacks = [];
+
+    function showToast(msg, dur) {
+        dur = dur || 2800;
+      const GITHUB_USER = 'W5691';
+const GITHUB_REPO = 'feedback-data';
+const GITHUB_TOKEN ='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';
+        t.style.opacity = '1';
+        setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.style.visibility = 'hidden'; }, 300); }, dur);
+    }
+
+    function formatTime(ts) {
+        var d = new Date(ts), n = new Date();
+        var dm = Math.floor((n - d) / 60000);
+        var dh = Math.floor(dm / 60);
+        var dd = Math.floor(dh / 24);
+        if (dm < 1) return '刚刚';
+        if (dm < 60) return dm + '分钟前';
+        if (dh < 24) return dh + '小时前';
+        if (dd < 7) return dd + '天前';
+        return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    }
+
+    function getCatStyle(c) {
+        var m = {'建议':'#d6eaf8','表扬':'#d5f5e3','投诉':'#fadbd8','其他':'#e8daef'};
+        return m[c] || '#eef4fc';
+    }
+
+    function esc(s) {
+        if (!s) return '';
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    function parseBody(body) {
+        try {
+            var match = body.match(/<!--FEEDBACK_DATA-->([\s\S]*?)<!--END-->/);
+            if (match) return JSON.parse(match[1]);
+        } catch(e) {}
+        return null;
+    }
+
+    async function fetchAll() {
+        try {
+            var res = await fetch(API_BASE + '?labels=' + DATA_LABEL + '&state=open&per_page=100&sort=created&direction=desc', {
+                headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Content-Type': 'application/json' }
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            var issues = await res.json();
+            var list = [];
+            issues.forEach(function(issue) {
+                var data = parseBody(issue.body || '');
+                if (data) { data._issueNumber = issue.number; list.push(data); }
+            });
+            return list;
+        } catch(e) {
+            console.error('获取失败:', e);
+            showToast('数据加载失败，请检查配置', 3000);
+            return [];
+        }
+    }
+
+    async function addOne(fb) {
+        var body = '<!--FEEDBACK_DATA-->' + JSON.stringify(fb) + '<!--END-->';
+        var title = '[' + fb.category + '] ' + (fb.name || '匿名').substring(0, 20) + ': ' + fb.message.substring(0, 30) + '...';
+        try {
+            var res = await fetch(API_BASE, {
+                method: 'POST',
+                headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: title, body: body, labels: [DATA_LABEL] })
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return true;
+        } catch(e) {
+            console.error('添加失败:', e);
+            showToast('提交失败，请检查Token', 3000);
+            return false;
+        }
+    }
+
+    async function deleteOne(issueNumber) {
+        try {
+            var res = await fetch(API_BASE + '/' + issueNumber, {
+                method: 'PATCH',
+                headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ state: 'closed' })
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return true;
+        } catch(e) { return false; }
+    }
+
+    async function clearAll() {
+        try {
+            var res = await fetch(API_BASE + '?labels=' + DATA_LABEL + '&state=open&per_page=100', {
+                headers: { 'Authorization': 'token ' + GITHUB_TOKEN }
+            });
+            var issues = await res.json();
+            var fail = 0;
+            for (var i = 0; i < issues.length; i++) {
+                var ok = await deleteOne(issues[i].number);
+                if (!ok) fail++;
+            }
+            if (fail === 0) showToast('已清空所有意见', 2000);
+            else showToast('清空完成，' + fail + '条失败', 2000);
+        } catch(e) { showToast('清空失败', 2000); }
+    }
+
+    function renderList(feedbacks) {
+        var container = document.getElementById('feedbackListContainer');
+        var stats = document.getElementById('statsDisplay');
+        if (!container) return;
+        allFeedbacks = feedbacks || [];
+        if (!feedbacks || feedbacks.length === 0) {
+            container.innerHTML = '<div class="empty-state">📭 暂时还没有意见，请写下第一条反馈~</div>';
+            updateStats(feedbacks);
+            return;
+        }
+        var sorted = [].concat(feedbacks).sort(function(a,b) { return new Date(b.timestamp) - new Date(a.timestamp); });
+        container.innerHTML = '';
+        sorted.forEach(function(fb) {
+            var card = document.createElement('div');
+            card.className = 'feedback-card';
+            var displayName = fb.name && fb.name.trim() ? esc(fb.name.trim()) : '匿名朋友';
+            var bg = getCatStyle(fb.category);
+            card.innerHTML = '<div class="card-header"><div><span class="feedback-name">' + displayName + '</span> <span class="feedback-category" style="background:' + bg + ';">' + esc(fb.category) + '</span></div><button class="delete-one" data-id="' + fb._issueNumber + '" title="删除此条意见">🗑️</button></div><div class="feedback-message">' + esc(fb.message).replace(/\n/g, '<br>') + '</div><div class="feedback-time">📅 ' + formatTime(fb.timestamp) + '</div>';
+            container.appendChild(card);
+        });
+        document.querySelectorAll('.delete-one').forEach(function(btn) {
+            btn.addEventListener('click', async function(e) {
+                e.stopPropagation();
+                var id = btn.getAttribute('data-id');
+                if (id) {
+                    var ok = await deleteOne(parseInt(id));
+                    if (ok) { showToast('已删除', 1500); refresh(); }
+                }
+            });
+        });
+        updateStats(sorted);
+    }
+
+    function updateStats(feedbacks) {
+        var stats = document.getElementById('statsDisplay');
+        if (!stats) return;
+        var total = feedbacks ? feedbacks.length : 0;
+        var cc = {};
+        if (feedbacks) feedbacks.forEach(function(fb) { cc[fb.category] = (cc[fb.category] || 0) + 1; });
+        var text = '📊 共 ' + total + ' 条心声';
+        if (total > 0) {
+            var top = Object.entries(cc).sort(function(a,b) { return b[1] - a[1]; })[0];
+            if (top) text += ' · 最多「' + top[0] + '」' + top[1] + '条';
+        }
+        stats.textContent = text;
+    }
+
+    async function refresh() {
+        var data = await fetchAll();
+        renderList(data);
+    }
+
+    document.getElementById('clearAllBtn').addEventListener('click', async function() {
+        if (!allFeedbacks || allFeedbacks.length === 0) { showToast('暂无意见可清空', 1500); return; }
+        if (!confirm('⚠️ 确定要清空全部 ' + allFeedbacks.length + ' 条意见吗？此操作不可撤销。')) return;
+        await clearAll();
+        await refresh();
+    });
+
+    document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        var msg = document.getElementById('messageInput').value.trim();
+        if (!msg) { showToast('请填写意见内容', 2000); return; }
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = '提交中...';
+        var fb = {
+            id: Date.now().toString() + '-' + Math.random().toString(36).substr(2,5),
+            name: document.getElementById('nameInput').value.trim(),
+            category: document.getElementById('categorySelect').value,
+            message: msg,
+            timestamp: new Date().toISOString()
+        };
+        var ok = await addOne(fb);
+        if (ok) {
+            document.getElementById('messageInput').value = '';
+            document.getElementById('nameInput').value = '';
+            document.getElementById('categorySelect').value = '建议';
+            updateCharCount();
+            showToast('感谢您的宝贵意见！已成功投递 📬', 2500);
+            await refresh();
+            document.getElementById('messageInput').focus();
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>提交意见';
+    });
+
+    function updateCharCount() {
+        var len = document.getElementById('messageInput').value.length;
+        var span = document.getElementById('charCount');
+        span.textContent = len;
+        span.style.color = len > 480 ? (len >= 500 ? '#e03a3a' : '#e67e22') : '#6c8da3';
+    }
+    document.getElementById('messageInput').addEventListener('input', updateCharCount);
+
+    async function updateStatsPanel() {
+        var feedbacks = await fetchAll();
+        document.getElementById('statTotal').textContent = feedbacks.length;
+        var now = new Date();
+        var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        var weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay());
+        weekStart.setHours(0,0,0,0);
+        document.getElementById('statToday').textContent = feedbacks.filter(function(fb) { return new Date(fb.timestamp) >= todayStart; }).length;
+        document.getElementById('statWeek').textContent = feedbacks.filter(function(fb) { return new Date(fb.timestamp) >= weekStart; }).length;
+        var cc = {'建议':0,'表扬':0,'投诉':0,'其他':0};
+        feedbacks.forEach(function(fb) { if (cc.hasOwnProperty(fb.category)) cc[fb.category]++; });
+        var ctx = document.getElementById('categoryChart').getContext('2d');
+        if (categoryChart) categoryChart.destroy();
+        var hasData = Object.values(cc).some(function(v) { return v > 0; });
+        categoryChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(cc),
+                datasets: [{ data: hasData ? Object.values(cc) : [1,1,1,1], backgroundColor: hasData ? ['#5dade2','#58d68d','#ec7063','#af7ac5'] : ['#e5e5e5','#e5e5e5','#e5e5e5','#e5e5e5'], borderWidth: 2, borderColor: '#ffffff' }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true, font: { size: 12 } } } } }
+        });
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            btn.classList.add('active');
+            var target = document.getElementById(btn.getAttribute('data-tab'));
+            target.classList.add('active');
+            if (btn.getAttribute('data-tab') === 'tab-stats') updateStatsPanel();
+        });
+    });
+
+    async function init() {
+        var data = await fetchAll();
+        renderList(data);
+        updateCharCount();
+    }
+    init();
+</script>
+</body>
+</html>
